@@ -113,5 +113,40 @@ def Tobs():
 
     return jsonify(dates_temp_data)
 
+@app.route("/api/v1.0/start/<start>")
+def TemperatureStart(start):
+
+    # processed date time
+    start_date = dt.datetime.strptime(start, "%Y-%m-%d")
+    
+    # query min, max, and average temperature greater than the starting date
+    temperature_query = session.query(func.min(measurement.tobs), func.avg(measurement.tobs), func.max(measurement.tobs))\
+                        .filter(measurement.date >= start_date).first()
+    
+    thisData = {
+        "min": temperature_query[0],
+        "max": temperature_query[2],
+        "average": temperature_query[1]
+    }
+    return jsonify(thisData)
+
+@app.route("/api/v1.0/start/<start>/end/<end>")
+def TemperatureStartEnd(start, end):
+
+    # processed date time
+    start_date = dt.datetime.strptime(start, "%Y-%m-%d")
+    end_date = dt.datetime.strptime(end, "%Y-%m-%d")
+
+    # query min, max, and average temperature greater than the starting date
+    temperature_query = session.query(func.min(measurement.tobs), func.avg(measurement.tobs), func.max(measurement.tobs))\
+                        .filter(measurement.date >= start_date).filter(measurement.date <= end_date).first()
+    thisData = {
+        "min": temperature_query[0],
+        "max": temperature_query[2],
+        "average": temperature_query[1]
+    }
+
+    return jsonify(thisData)
+
 if __name__ == "__main__":
     app.run(debug = True)
