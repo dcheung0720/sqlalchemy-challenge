@@ -41,8 +41,8 @@ def Home():
                 <li>/api/v1.0/precipitation</li>\
                 <li>/api/v1.0/stations</li>\
                 <li>/api/v1.0/tobs</li>\
-                <li>/api/v1.0/&lt;start&gt;</li>\
-                <li>/api/v1.0/&lt;start&gt;/&lt;end&gt;</li>\
+                <li>/api/v1.0/start/&lt;start&gt;</li>\
+                <li>/api/v1.0/start/&lt;start&gt;/end/&lt;end&gt;</li>\
             </ol>"
 
 @app.route("/api/v1.0/precipitation")
@@ -116,12 +116,9 @@ def Tobs():
 @app.route("/api/v1.0/start/<start>")
 def TemperatureStart(start):
 
-    # processed date time
-    start_date = dt.datetime.strptime(start, "%Y-%m-%d")
-    
     # query min, max, and average temperature greater than the starting date
     temperature_query = session.query(func.min(measurement.tobs), func.avg(measurement.tobs), func.max(measurement.tobs))\
-                        .filter(measurement.date >= start_date).first()
+                        .filter(measurement.date >= start).first()
     
     thisData = {
         "min": temperature_query[0],
@@ -132,14 +129,9 @@ def TemperatureStart(start):
 
 @app.route("/api/v1.0/start/<start>/end/<end>")
 def TemperatureStartEnd(start, end):
-
-    # processed date time
-    start_date = dt.datetime.strptime(start, "%Y-%m-%d")
-    end_date = dt.datetime.strptime(end, "%Y-%m-%d")
-
     # query min, max, and average temperature greater than the starting date
     temperature_query = session.query(func.min(measurement.tobs), func.avg(measurement.tobs), func.max(measurement.tobs))\
-                        .filter(measurement.date >= start_date).filter(measurement.date <= end_date).first()
+                        .filter(measurement.date >= start).filter(measurement.date <= end).first()
     thisData = {
         "min": temperature_query[0],
         "max": temperature_query[2],
